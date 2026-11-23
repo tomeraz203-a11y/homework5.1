@@ -1,3 +1,4 @@
+from About1 import Aboutwindow
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QAbstractSpinBox,
@@ -17,7 +18,12 @@ from PySide6.QtWidgets import (
 class HeatTransfer(QWidget):
     def __init__(self):
         super().__init__()
+        self.about_window = Aboutwindow()
         self.setupUI()
+        self.about_button.clicked.connect(self.open_about_window)
+
+    def open_about_window(self):
+        self.about_window.show()
 
     def setupUI(self):
         self.setWindowTitle("Heat Transfer")
