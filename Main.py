@@ -1,4 +1,5 @@
 from About1 import Aboutwindow
+from GraphWindow import GraphWindow
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QAbstractSpinBox,
@@ -19,11 +20,16 @@ class HeatTransfer(QWidget):
     def __init__(self):
         super().__init__()
         self.about_window = Aboutwindow()
+        self.graph_window = GraphWindow(self)
         self.setupUI()
         self.about_button.clicked.connect(self.open_about_window)
+        self.graphs_button.clicked.connect(self.open_graph_window)
 
     def open_about_window(self):
         self.about_window.show()
+
+    def open_graph_window(self):
+        self.graph_window.show()
 
     def setupUI(self):
         self.setWindowTitle("Heat Transfer")
