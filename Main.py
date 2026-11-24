@@ -1,6 +1,7 @@
 from About1 import Aboutwindow
+from Body import Body
 from GraphWindow import GraphWindow
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QAbstractSpinBox,
     QApplication,
@@ -21,10 +22,23 @@ class HeatTransfer(QWidget):
         super().__init__()
         self.about_window = Aboutwindow()
         self.graph_window = GraphWindow(self)
+
+        self.body1 = None
+        self.body2 = None
+        self.dt = 0.1
+        self.current_time = 0.0
+        self.time_history = []
+        self.body1_temp_history = []
+        self.body2_temp_history = []
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.timer_method)
+
         self.setupUI()
 
         self.left_slider.valueChanged.connect(self.left_temperature_changed)
         self.right_slider.valueChanged.connect(self.right_temperature_changed)
+        self.start_stop_button.clicked.connect(self.start_stop_button_method)
         self.about_button.clicked.connect(self.open_about_window)
         self.graphs_button.clicked.connect(self.open_graph_window)
 
@@ -47,6 +61,44 @@ class HeatTransfer(QWidget):
     def update_body_color(self, widget, temperature):
         red_value = int((temperature / 200.0) * 255)
         widget.setStyleSheet(f"background-color: rgb({red_value}, 0, 0);")
+
+    def set_inputs_enabled(self, enabled):
+        self.left_slider.setEnabled(enabled)
+        self.right_slider.setEnabled(enabled)
+        self.left_mass_spinbox.setEnabled(enabled)
+        self.right_mass_spinbox.setEnabled(enabled)
+        self.left_hcap_spinbox.setEnabled(enabled)
+        self.right_hcap_spinbox.setEnabled(enabled)
+        self.conductivity_spinbox.setEnabled(enabled)
+
+    def start_stop_button_method(self):
+        if self.start_stop_button.isChecked():
+            self.start_stop_button.setText("Stop")
+            self.set_inputs_enabled(False)
+
+            t1 = self.left_temp_spinbox.value()
+            t2 = self.right_temp_spinbox.value()
+            m1 = self.left_mass_spinbox.value()
+            m2 = self.right_mass_spinbox.value()
+            c1 = self.left_hcap_spinbox.value()
+            c2 = self.right_hcap_spinbox.value()
+
+            self.body1 = Body(m1, c1, t1)
+            self.body2 = Body(m2, c2, t2)
+
+            self.current_time = 0.0
+            self.time_history = [self.current_time]
+            self.body1_temp_history = [t1]
+            self.body2_temp_history = [t2]
+
+            self.timer.start(int(self.dt * 1000))
+        else:
+            self.timer.stop()
+            self.start_stop_button.setText("Start")
+            self.set_inputs_enabled(True)
+
+    def timer_method(self):
+        pass
 
     def setupUI(self):
         self.setWindowTitle("Heat Transfer")
