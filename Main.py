@@ -5,6 +5,7 @@ from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QAbstractSpinBox,
     QApplication,
+    QCheckBox,
     QDoubleSpinBox,
     QFrame,
     QGridLayout,
@@ -129,6 +130,10 @@ class HeatTransfer(QWidget):
 
         self.update_body_color(self.left_body_widget, new_t1)
         self.update_body_color(self.right_body_widget, new_t2)
+       
+        if self.auto_stop_checkbox.isChecked() and abs(new_t1 - new_t2) < 0.05:
+            self.start_stop_button.setChecked(False)
+            self.start_stop_button_method()
 
     def setupUI(self):
         self.setWindowTitle("Heat Transfer")
@@ -224,6 +229,8 @@ class HeatTransfer(QWidget):
 
         self.about_button = QPushButton("About")
         button_column.addWidget(self.about_button)
+        self.auto_stop_checkbox = QCheckBox("Auto-stop")
+        button_column.addWidget(self.auto_stop_checkbox)
 
         bottom_layout.addLayout(button_column)
 
