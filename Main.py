@@ -22,6 +22,9 @@ class HeatTransfer(QWidget):
         self.about_window = Aboutwindow()
         self.graph_window = GraphWindow(self)
         self.setupUI()
+
+        self.left_slider.valueChanged.connect(self.left_temperature_changed)
+        self.right_slider.valueChanged.connect(self.right_temperature_changed)
         self.about_button.clicked.connect(self.open_about_window)
         self.graphs_button.clicked.connect(self.open_graph_window)
 
@@ -30,6 +33,20 @@ class HeatTransfer(QWidget):
 
     def open_graph_window(self):
         self.graph_window.show()
+
+    def left_temperature_changed(self):
+        temp = float(self.left_slider.value())
+        self.left_temp_spinbox.setValue(temp)
+        self.update_body_color(self.left_body_widget, temp)
+
+    def right_temperature_changed(self):
+        temp = float(self.right_slider.value())
+        self.right_temp_spinbox.setValue(temp)
+        self.update_body_color(self.right_body_widget, temp)
+
+    def update_body_color(self, widget, temperature):
+        red_value = int((temperature / 200.0) * 255)
+        widget.setStyleSheet(f"background-color: rgb({red_value}, 0, 0);")
 
     def setupUI(self):
         self.setWindowTitle("Heat Transfer")
@@ -49,7 +66,7 @@ class HeatTransfer(QWidget):
 
         self.left_body_widget = QFrame()
         self.left_body_widget.setFixedSize(70, 220)
-        self.left_body_widget.setStyleSheet("background-color: #ff0000;")
+        self.left_body_widget.setStyleSheet("background-color: rgb(255, 0, 0);")
         top_layout.addWidget(self.left_body_widget)
 
         center_layout = QVBoxLayout()
@@ -82,7 +99,7 @@ class HeatTransfer(QWidget):
 
         self.right_body_widget = QFrame()
         self.right_body_widget.setFixedSize(70, 220)
-        self.right_body_widget.setStyleSheet("background-color: #000000;")
+        self.right_body_widget.setStyleSheet("background-color: rgb(0, 0, 0);")
         top_layout.addWidget(self.right_body_widget)
         top_layout.addSpacing(12)
 
@@ -101,16 +118,16 @@ class HeatTransfer(QWidget):
         left_column.setHorizontalSpacing(8)
         left_column.setVerticalSpacing(10)
 
-        self.left_temp_spinbox = self._create_temperature_spinbox(200.0)
-        self.left_mass_spinbox = self._create_parameter_spinbox(
+        self.left_temp_spinbox = self.create_temperature_spinbox(200.0)
+        self.left_mass_spinbox = self.create_parameter_spinbox(
             2, 0.01, 10000.0, 10.00, " kg"
         )
-        self.left_hcap_spinbox = self._create_parameter_spinbox(
+        self.left_hcap_spinbox = self.create_parameter_spinbox(
             2, 0.01, 10000.0, 0.40, " J/kg°C"
         )
-        self._add_labeled_field(left_column, 0, "Temp.", self.left_temp_spinbox)
-        self._add_labeled_field(left_column, 1, "Mass", self.left_mass_spinbox)
-        self._add_labeled_field(left_column, 2, "H. Cap.", self.left_hcap_spinbox)
+        self.add_labeled_field(left_column, 0, "Temp.", self.left_temp_spinbox)
+        self.add_labeled_field(left_column, 1, "Mass", self.left_mass_spinbox)
+        self.add_labeled_field(left_column, 2, "H. Cap.", self.left_hcap_spinbox)
         bottom_layout.addLayout(left_column, 1)
 
         button_column = QVBoxLayout()
@@ -132,28 +149,27 @@ class HeatTransfer(QWidget):
         right_column.setHorizontalSpacing(8)
         right_column.setVerticalSpacing(10)
 
-        self.right_temp_spinbox = self._create_temperature_spinbox(0.0)
-        self.right_mass_spinbox = self._create_parameter_spinbox(
+        self.right_temp_spinbox = self.create_temperature_spinbox(0.0)
+        self.right_mass_spinbox = self.create_parameter_spinbox(
             2, 0.01, 10000.0, 10.00, " kg"
         )
-        self.right_hcap_spinbox = self._create_parameter_spinbox(
+        self.right_hcap_spinbox = self.create_parameter_spinbox(
             2, 0.01, 10000.0, 0.40, " J/kg°C"
         )
-        self._add_labeled_field(
+        self.add_labeled_field(
             right_column, 0, "Temp.", self.right_temp_spinbox, label_on_right=True
         )
-        self._add_labeled_field(
+        self.add_labeled_field(
             right_column, 1, "Mass", self.right_mass_spinbox, label_on_right=True
         )
-        self._add_labeled_field(
+        self.add_labeled_field(
             right_column, 2, "H. Cap.", self.right_hcap_spinbox, label_on_right=True
         )
         bottom_layout.addLayout(right_column, 1)
 
         main_layout.addLayout(bottom_layout)
 
-    @staticmethod
-    def _create_temperature_spinbox(value):
+    def create_temperature_spinbox(self, value):
         spinbox = QDoubleSpinBox()
         spinbox.setDecimals(1)
         spinbox.setRange(0.0, 200.0)
@@ -164,8 +180,7 @@ class HeatTransfer(QWidget):
         spinbox.setStyleSheet("background-color: #eeeeee;")
         return spinbox
 
-    @staticmethod
-    def _create_parameter_spinbox(decimals, minimum, maximum, value, suffix):
+    def create_parameter_spinbox(self, decimals, minimum, maximum, value, suffix):
         spinbox = QDoubleSpinBox()
         spinbox.setDecimals(decimals)
         spinbox.setRange(minimum, maximum)
@@ -173,8 +188,7 @@ class HeatTransfer(QWidget):
         spinbox.setSuffix(suffix)
         return spinbox
 
-    @staticmethod
-    def _add_labeled_field(layout, row, label_text, spinbox, label_on_right=False):
+    def add_labeled_field(self, layout, row, label_text, spinbox, label_on_right=False):
         label = QLabel(label_text)
         if label_on_right:
             layout.addWidget(spinbox, row, 0)
