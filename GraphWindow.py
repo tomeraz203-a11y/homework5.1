@@ -9,6 +9,7 @@ class GraphWindow(QWidget):
         self.main_window = main_window
         self.setupUI()
         self.draw_button.clicked.connect(self.draw_graph)
+        self.clear_button.clicked.connect(self.clear_graph)
 
     def setupUI(self):
         self.setWindowTitle("Graph Window")
@@ -66,4 +67,12 @@ class GraphWindow(QWidget):
         self.ax.relim()
         self.ax.autoscale()
         self.ax.legend()
+        self.canvas.draw()
+
+    def clear_graph(self):
+        self.ax.clear()
+        self.ax.set_ylabel("Temperature (°C)")
+        self.ax.set_xlabel("Time (s)")
+        self.ax.set_xlim(0.0, 1.0)
+        self.ax.set_ylim(0.0, 1.0)
         self.canvas.draw()
