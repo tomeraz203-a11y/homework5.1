@@ -98,7 +98,37 @@ class HeatTransfer(QWidget):
             self.set_inputs_enabled(True)
 
     def timer_method(self):
-        pass
+        conductivity = self.conductivity_spinbox.value()
+        t1 = self.body1.temperature
+        t2 = self.body2.temperature
+
+        rate1 = conductivity * (t2 - t1)
+        rate2 = conductivity * (t1 - t2)
+
+        dq1 = rate1 * self.dt
+        dq2 = rate2 * self.dt
+
+        new_t1 = self.body1.add_heat(dq1)
+        new_t2 = self.body2.add_heat(dq2)
+
+        self.current_time += self.dt
+        self.time_history.append(self.current_time)
+        self.body1_temp_history.append(new_t1)
+        self.body2_temp_history.append(new_t2)
+
+        self.left_temp_spinbox.setValue(new_t1)
+        self.right_temp_spinbox.setValue(new_t2)
+
+        self.left_slider.blockSignals(True)
+        self.left_slider.setValue(int(round(new_t1)))
+        self.left_slider.blockSignals(False)
+
+        self.right_slider.blockSignals(True)
+        self.right_slider.setValue(int(round(new_t2)))
+        self.right_slider.blockSignals(False)
+
+        self.update_body_color(self.left_body_widget, new_t1)
+        self.update_body_color(self.right_body_widget, new_t2)
 
     def setupUI(self):
         self.setWindowTitle("Heat Transfer")
