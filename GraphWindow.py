@@ -8,6 +8,7 @@ class GraphWindow(QWidget):
         super().__init__()
         self.main_window = main_window
         self.setupUI()
+        self.draw_button.clicked.connect(self.draw_graph)
 
     def setupUI(self):
         self.setWindowTitle("Graph Window")
@@ -41,3 +42,28 @@ class GraphWindow(QWidget):
 
         controls_layout.addStretch()
         main_layout.addLayout(controls_layout)
+
+
+    def draw_graph(self):
+        times = self.main_window.time_history
+        if not times:
+            return
+
+        selected_body = self.body_combo.currentText()
+        if selected_body == "Body 1":
+            temps = self.main_window.body1_temp_history
+            mass = self.main_window.left_mass_spinbox.value()
+            hcap = self.main_window.left_hcap_spinbox.value()
+        else:
+            temps = self.main_window.body2_temp_history
+            mass = self.main_window.right_mass_spinbox.value()
+            hcap = self.main_window.right_hcap_spinbox.value()
+
+        conductivity = self.main_window.conductivity_spinbox.value()
+        label = f"{selected_body} (m={mass}kg, c={hcap}, k={conductivity})"
+
+        self.ax.plot(times, temps, label=label)
+        self.ax.relim()
+        self.ax.autoscale()
+        self.ax.legend()
+        self.canvas.draw()
