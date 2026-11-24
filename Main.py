@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (
     QAbstractSpinBox,
     QApplication,
     QCheckBox,
+    QComboBox,
     QDoubleSpinBox,
     QFrame,
     QGridLayout,
@@ -42,6 +43,8 @@ class HeatTransfer(QWidget):
         self.start_stop_button.clicked.connect(self.start_stop_button_method)
         self.about_button.clicked.connect(self.open_about_window)
         self.graphs_button.clicked.connect(self.open_graph_window)
+        self.left_material_combo.currentTextChanged.connect(self.left_material_changed)    
+        self.right_material_combo.currentTextChanged.connect(self.right_material_changed) 
 
     def open_about_window(self):
         self.about_window.show()
@@ -59,6 +62,28 @@ class HeatTransfer(QWidget):
         self.right_temp_spinbox.setValue(temp)
         self.update_body_color(self.right_body_widget, temp)
 
+    def left_material_changed(self):
+        materials = {
+            "Copper": 0.39,
+            "Iron": 0.45,
+            "Aluminum": 0.90,
+            "Water": 4.18,
+        }
+        selected = self.left_material_combo.currentText()
+        if selected in materials:
+            self.left_hcap_spinbox.setValue(materials[selected])
+
+    def right_material_changed(self):
+        materials = {
+            "Copper": 0.39,
+            "Iron": 0.45,
+            "Aluminum": 0.90,
+            "Water": 4.18,
+        }
+        selected = self.right_material_combo.currentText()
+        if selected in materials:
+            self.right_hcap_spinbox.setValue(materials[selected])
+
     def update_body_color(self, widget, temperature):
         red_value = int((temperature / 200.0) * 255)
         widget.setStyleSheet(f"background-color: rgb({red_value}, 0, 0);")
@@ -71,6 +96,8 @@ class HeatTransfer(QWidget):
         self.left_hcap_spinbox.setEnabled(enabled)
         self.right_hcap_spinbox.setEnabled(enabled)
         self.conductivity_spinbox.setEnabled(enabled)
+        self.left_material_combo.setEnabled(enabled)
+        self.right_material_combo.setEnabled(enabled)
 
     def start_stop_button_method(self):
         if self.start_stop_button.isChecked():
@@ -215,6 +242,9 @@ class HeatTransfer(QWidget):
         self.add_labeled_field(left_column, 0, "Temp.", self.left_temp_spinbox)
         self.add_labeled_field(left_column, 1, "Mass", self.left_mass_spinbox)
         self.add_labeled_field(left_column, 2, "H. Cap.", self.left_hcap_spinbox)
+        self.left_material_combo = QComboBox()
+        self.left_material_combo.addItems(["Custom", "Copper", "Iron", "Aluminum", "Water"])
+        self.add_labeled_field(left_column, 3, "Material", self.left_material_combo)
         bottom_layout.addLayout(left_column, 1)
 
         button_column = QVBoxLayout()
@@ -253,6 +283,11 @@ class HeatTransfer(QWidget):
         )
         self.add_labeled_field(
             right_column, 2, "H. Cap.", self.right_hcap_spinbox, label_on_right=True
+        )
+        self.right_material_combo = QComboBox()
+        self.right_material_combo.addItems(["Custom", "Copper", "Iron", "Aluminum", "Water"])
+        self.add_labeled_field(
+            right_column, 3, "Material", self.right_material_combo, label_on_right=True
         )
         bottom_layout.addLayout(right_column, 1)
 
